@@ -4,7 +4,7 @@ required_pkgs <- c(
   "shinyFiles",
   "shinycssloaders",
   "data.table",
-  "XLConnect"
+  "openxlsx"
 )
 
 install_if_missing <- function(pkgs) {
