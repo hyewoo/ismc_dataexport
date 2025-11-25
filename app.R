@@ -399,7 +399,7 @@ server <- function(input, output, session) {
       #summary_spc_wk <- fread(file.path(filepath(), "faib_compiled_spcsmries_wk.csv"))
       plot_header   <- fread(file.path(filepath(), "faib_plot_header.csv"))
       tree          <- fread(file.path(filepath(), "faib_tree_detail.csv"))
-      wb <- loadWorkbook(file.path(filepath(), "data_dictionary.xlsx"))
+      wb <- openxlsx::loadWorkbook(file.path(filepath(), "data_dictionary.xlsx"))
       
       if (pspornot() != "PSP") {
         summary_wk    <- fread(file.path(filepath(), "faib_compiled_smries_wk.csv"))
@@ -443,7 +443,7 @@ server <- function(input, output, session) {
       }
       
       # Save Excel workbook
-      saveWorkbook(wb, file = "data_dictionary.xlsx")
+      saveWorkbook(wb, file = "data_dictionary.xlsx", overwrite = T)
       
       incProgress(0.6, detail = "Zipping files")
       files_to_zip <- c(names(tmp_files), "data_dictionary.xlsx")
