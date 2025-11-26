@@ -4,7 +4,8 @@ required_pkgs <- c(
   "shinyFiles",
   "shinycssloaders",
   "data.table",
-  "openxlsx"
+  "openxlsx",
+  "zip"
 )
 
 install_if_missing <- function(pkgs) {
@@ -373,7 +374,7 @@ server <- function(input, output, session) {
       incProgress(0.6, detail = "Zipping files")
       files_to_zip <- c(names(tmp_files), "data_dictionary.xlsx")
       zipfile <- paste0(tempfile(), ".zip")
-      zip(zipfile = zipfile, files = files_to_zip, extras = "-j")  # -j flattens structure
+      zip::zip(zipfile = zipfile, files = files_to_zip)  # -j flattens structure
       
       # Remove temporary files
       #file_remove(files_to_zip)
