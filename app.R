@@ -143,6 +143,13 @@ ui <- fluidPage(
 # =====================================================================
 server <- function(input, output, session) {
   
+  # IMPORTANT!
+  # this is needed to terminate the R process when the
+  # shiny app session ends. Otherwise, you end up with a zombie process
+  session$onSessionEnded(function() {
+    stopApp()
+  })
+  
   # -------------------------------------------
   # PSP / non-PSP + Compilation Dates
   # -------------------------------------------
@@ -253,13 +260,6 @@ server <- function(input, output, session) {
   # -------------------------------------------
   # Example Outputs
   # -------------------------------------------
-  #output$setting <- renderTable({
-  #  data.frame(
-  #    PSP_or_nonPSP = pspornot(),
-  #    CompilationDate = compdate(),
-  #    Path = filepath()
-  #  )
-  #})
   
   output$setting <- renderTable({
     data.frame(Data = c("Location", "PSP or non-PSP", 
@@ -270,9 +270,6 @@ server <- function(input, output, session) {
     ))
   })
   
-  #output$samplesize <- renderText({
-  #  paste("Selected sample size:", length(selected_sample()))
-  #})
   
   output$table1 <- renderTable({
     
@@ -324,66 +321,6 @@ server <- function(input, output, session) {
     )
   })
   
-  #output$table1 <- renderTable({
-  #  head(samples(), 10)
-  #})
-  #
-  #output$table2 <- renderTable({
-  #  head(sites(), 10)
-  #})
-  
-  # -------------------------------------------
-  # Download handler (CSV)
-  # -------------------------------------------
-  #observeEvent(input$db, {
-  #  
-  #  summary <- fread(paste0(filepath(), "/faib_compiled_smries.csv"))
-  #  summary_ht <- fread(paste0(filepath(), "/faib_compiled_smries_ht.csv"))
-  #  summary_wk <- fread(paste0(filepath(), "/faib_compiled_smries_wk.csv"))
-  #  summary_spc <- fread(paste0(filepath(), "/faib_compiled_spcsmries.csv"))
-  #  summary_siteage <- fread(paste0(filepath(), "/faib_compiled_spcsmries_siteage.csv"))
-  #  summary_spc_wk <- fread(paste0(filepath(), "/faib_compiled_spcsmries_wk.csv"))
-  #  plot_header <- fread(paste0(filepath(), "/faib_plot_header.csv"))
-  #  tree <- fread(paste0(filepath(), "/faib_tree_detail.csv"))
-  #  
-  #  wb <- loadWorkbook(paste0(filepath(), "/data_dictionary.xlsx"))
-  #  
-  #  #Create CSVs to download
-  #  output$downloadCSV <<- downloadHandler(
-  #    
-  #    
-  #    filename = paste("bc_custom_sample_data_", Sys.Date(), ".zip", sep=""),
-  #    content = function(fname) {
-  #      fs <- c("faib_sample_byvisit.csv", "faib_header.csv",
-  #              "faib_compiled_smries.csv", "faib_compiled_smries_ht.csv",
-  #              "faib_compiled_smries_wk.csv", "faib_compiled_spcsmries.csv",
-  #              "faib_compiled_spcsmries_siteage.csv", "faib_compiled_spcsmries_wk.csv",
-  #              "faib_plot_header.csv", "faib_tree_detail.csv",
-  #              "data_dictionary.xlsx")
-  #      
-  #      fwrite(samples()[CLSTR_ID %in% selected_sample(),], file = "faib_sample_byvisit.csv")
-  #      fwrite(sites()[SITE_IDENTIFIER %in% selected_site(),], file = "faib_header.csv")
-  #      fwrite(summary[SITE_IDENTIFIER %in% selected_site(),], file = "faib_compiled_smries.csv")
-  #      fwrite(summary_ht[CLSTR_ID %in% selected_sample(),], file = "faib_compiled_smries_ht.csv")
-  #      fwrite(summary_wk[CLSTR_ID %in% selected_sample(),], file = "faib_compiled_smries_wk.csv")
-  #      fwrite(summary_spc[CLSTR_ID %in% selected_sample(),], file = "faib_compiled_spcsmries.csv")
-  #      fwrite(summary_siteage[CLSTR_ID %in% selected_sample(),], file = "faib_compiled_spcsmries_siteage.csv")
-  #      fwrite(summary_spc_wk[CLSTR_ID %in% selected_sample(),], file = "faib_compiled_spcsmries_wk.csv")
-  #      fwrite(plot_header[CLSTR_ID %in% selected_sample(),], file = "faib_plot_header.csv")
-  #      fwrite(tree[CLSTR_ID %in% selected_sample(),], file = "faib_tree_detail.csv")
-  #      saveWorkbook(wb, file = "data_dictionary.xlsx", overwrite = TRUE)
-  #      
-  #      zip(zipfile=fname, files=fs)
-  #      if(file.exists(paste0(fname, ".zip"))) {file.rename(paste0(fname, ".zip"), fname)}
-  #    },
-  #    contentType = "application/zip")
-  #  # ------------------------
-  #  # Trigger automatic download via JS
-  #  # ------------------------
-  #  jsinject <- "setTimeout(function(){window.open($('#downloadCSV').attr('href'))}, 100);"
-  #  session$sendCustomMessage(type = 'jsCode', list(value = jsinject))
-  #  
-  #})
   
   observeEvent(input$db, {
     
@@ -407,18 +344,6 @@ server <- function(input, output, session) {
       }
       
       incProgress(0.3, detail = "Writing temporary CSV files")
-      #tmp_files <- list(
-      #  "faib_sample_byvisit.csv" = samples()[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_header.csv" = sites()[SITE_IDENTIFIER %in% selected_site(), ],
-      #  "faib_compiled_smries.csv" = summary[SITE_IDENTIFIER %in% selected_site(), ],
-      #  "faib_compiled_smries_ht.csv" = summary_ht[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_compiled_smries_wk.csv" = summary_wk[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_compiled_spcsmries.csv" = summary_spc[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_compiled_spcsmries_siteage.csv" = summary_siteage[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_compiled_spcsmries_wk.csv" = summary_spc_wk[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_plot_header.csv" = plot_header[CLSTR_ID %in% selected_sample(), ],
-      #  "faib_tree_detail.csv" = tree[CLSTR_ID %in% selected_sample(), ]
-      #)
       
       tmp_files <- list(
         "faib_sample_byvisit.csv" = samples()[CLSTR_ID %in% selected_sample(), ],
