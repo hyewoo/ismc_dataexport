@@ -322,7 +322,8 @@ server <- function(input, output, session) {
         "OWN_SCHED_DESCRIP",
         "MEAS_YR",
         "SAMPLE_SITE_PURPOSE_TYPE_CODE",
-        "YSM"
+        "YSM",
+        "Manually Listed Site IDs"
       ),
       #Input = c(
       #  collapse_safe(input$sampltype),
@@ -340,7 +341,8 @@ server <- function(input, output, session) {
         collapse_safe(ownership(), all_values = unique(sample_site()$OWN_SCHED_DESCRIP)),
         paste(year(), collapse = "-"),   # year usually no "All"
         collapse_safe(sitecode(), all_values = unique(sample_site()$SAMPLE_SITE_PURPOSE_TYPE_CODE)),
-        ifelse(all(ysm() == "Y"), "YSM Pilot only", "All")
+        ifelse(all(ysm() == "Y"), "YSM Pilot only", "All"),
+        paste0(manual_list(), collapse = ", ")
       ),
       stringsAsFactors = FALSE
     )

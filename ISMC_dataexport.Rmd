@@ -29,7 +29,10 @@ Once the application is running, select the attributes for the ground samples yo
 The selected data will be downloaded as a `.zip` file.
 
 
+## Update 
 
 
-
+| Date  |  Description     |
+|-----------|----------------------------------|
+| 2026-06-01| Enabled manual Site ID specification. |
 
