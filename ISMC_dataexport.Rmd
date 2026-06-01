@@ -1,0 +1,35 @@
+---
+title: "ISMC_dataexport"
+output: html_document
+date: "2025-12-03"
+---
+
+## ISMC Data Export Tool
+
+This application enables internal users to generate customized exports of ISMC compiled ground sample data through an R Shiny interface.
+
+![](D:/R/ISMC_dataexport/image/Picture1.png)
+
+
+## Application Execution
+
+Open `ISMC_dataexport.bat` located in the `custom` folder. You may encounter a standard security prompt when running executables from a network location. Users can copy the `.bat` file to any local folder and run it from there.
+
+![](D:/R/ISMC_dataexport/image/Picture2.png){width=70%}
+![](D:/R/ISMC_dataexport/image/Picture3.png)
+
+
+The batch script launches the Shiny app using your local R installation if available; otherwise, it automatically switches to an R-portable instance.
+Note that the R-portable runs from a network drive, which can significantly slow down startup time and package loading.
+
+
+![](D:/R/ISMC_dataexport/image/Picture4.png){width=70%}
+
+Once the application is running, select the attributes for the ground samples you wish to export, then click the *Export Data* button.
+The selected data will be downloaded as a `.zip` file.
+
+
+
+
+
+

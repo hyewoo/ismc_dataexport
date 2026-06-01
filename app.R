@@ -119,6 +119,11 @@ ui <- fluidPage(
       sliderInput("year", "Year Range", min = 1900, max = 2025,
                   value = c(1900, 2025), step = 1, sep = ""),
       
+      textAreaInput("site_list", 
+                    "Enter Site IDs (comma or line separated):",
+                    placeholder = "e.g. 2095167, 2097163, 2095157",
+                    rows = 3),
+      
       # Export button + Download link
       actionButton("db", "Export Data", width = "100%"),
       # Optional: text output to show download ready
@@ -226,6 +231,18 @@ server <- function(input, output, session) {
   })
   year <- reactive(input$year)
   
+  # Manual list
+  manual_list <- reactive({
+    if (is.null(input$site_list) || input$site_list == "") {
+      return(NULL)
+    }
+    
+    site_id <- unlist(strsplit(input$site_list, "[^[:alnum:]_]+"))
+    site_id <- trimws(site_id)
+    site_id <- site_id[nzchar(site_id)]
+    unique(as.numeric(site_id))
+  })
+  
   # -------------------------------------------
   # Selected samples
   # -------------------------------------------
@@ -241,21 +258,37 @@ server <- function(input, output, session) {
         MEAS_YR >= input$year[1] &
         MEAS_YR <= input$year[2] &
         YSM_PILOT_FM %in% ysm(),
-      CLSTR_ID
     ]
+    # apply manual filter ONLY if provided
+    site_ids <- manual_list()
+    if (!is.null(site_ids)) {
+      ss <- ss[SITE_IDENTIFIER %in% site_ids]
+    }
+    
+    ss[, CLSTR_ID]
   })
   
   selected_site <- reactive({
-    sample_site <- sample_site()
-    sample_site[sample_site$SAMPLE_ESTABLISHMENT_TYPE %in% sampltype() &
-                  sample_site$TSA_DESC %in% tsa() &
-                  sample_site$MGMT_UNIT %in% mgmtunit() &
-                  sample_site$OWN_SCHED_DESCRIP %in% ownership() &
-                  sample_site$MEAS_YR >= year()[1] &
-                  sample_site$MEAS_YR <= year()[2] &
-                  sample_site$SAMPLE_SITE_PURPOSE_TYPE_CODE %in% sitecode() &
-                  (sample_site$YSM_PILOT_FM %in% ysm() | sample_site$YSM_PILOT_LM %in% ysm())
-                , SITE_IDENTIFIER]
+    ss <- sample_site()
+    
+    ss <- ss[
+      SAMPLE_ESTABLISHMENT_TYPE %in% sampltype() &
+        TSA_DESC %in% tsa() &
+        MGMT_UNIT %in% mgmtunit() &
+        OWN_SCHED_DESCRIP %in% ownership() &
+        MEAS_YR >= year()[1] &
+        MEAS_YR <= year()[2] &
+        SAMPLE_SITE_PURPOSE_TYPE_CODE %in% sitecode() &
+        (YSM_PILOT_FM %in% ysm() | YSM_PILOT_LM %in% ysm())
+    ]
+    
+    # apply manual filter only if provided
+    site_ids <- manual_list()
+    if (!is.null(site_ids)) {
+      ss <- ss[SITE_IDENTIFIER %in% site_ids]
+    }
+    
+    ss[, SITE_IDENTIFIER]
   })
   
   # -------------------------------------------
